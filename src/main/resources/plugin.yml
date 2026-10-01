@@ -4,3 +4,14 @@ main: com.starborne.Starborne
 api-version: '1.21.11'
 author: Guntherdaman
 description: The Starborne SMP custom survival plugin.
+
+commands:
+  starborne:
+    description: Shows information about the Starborne SMP plugin.
+    usage: /starborne
+    permission: starborne.use
+
+permissions:
+  starborne.use:
+    description: Allows the player to use /starborne.
+    default: true

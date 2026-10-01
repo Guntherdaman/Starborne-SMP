@@ -1,0 +1,6 @@
+name: Starborne
+version: 1.0.0
+main: com.starborne.Starborne
+api-version: '1.21.11'
+author: Guntherdaman
+description: The Starborne SMP custom survival plugin.

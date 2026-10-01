@@ -1,5 +1,6 @@
 package com.starborne;
 
+import com.starborne.commands.StarborneCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Starborne extends JavaPlugin {
@@ -7,6 +8,8 @@ public final class Starborne extends JavaPlugin {
     @Override
     public void onEnable() {
         getLogger().info("Starborne SMP has been enabled!");
+
+        getCommand("starborne").setExecutor(new StarborneCommand());
     }
 
     @Override

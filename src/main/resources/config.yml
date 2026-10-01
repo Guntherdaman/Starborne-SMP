@@ -8,3 +8,7 @@ abilities:
 
 souls:
   enabled: true
+
+legendary:
+  crafting-enabled: true
+  rituals-enabled: true

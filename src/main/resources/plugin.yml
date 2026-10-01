@@ -11,7 +11,36 @@ commands:
     usage: /starborne
     permission: starborne.use
 
+  ability1:
+    description: Activates your helmet ability.
+    usage: /ability1
+    permission: starborne.ability
+
+  ability2:
+    description: Activates your chestplate ability.
+    usage: /ability2
+    permission: starborne.ability
+
+  ability3:
+    description: Activates your leggings ability.
+    usage: /ability3
+    permission: starborne.ability
+
+  ability4:
+    description: Activates your boots ability.
+    usage: /ability4
+    permission: starborne.ability
+
+  ability5:
+    description: Activates your main-hand ability.
+    usage: /ability5
+    permission: starborne.ability
+
 permissions:
   starborne.use:
     description: Allows the player to use /starborne.
+    default: true
+
+  starborne.ability:
+    description: Allows the player to use Starborne abilities.
     default: true

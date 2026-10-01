@@ -1,0 +1,10 @@
+# Starborne SMP Configuration
+
+plugin:
+  debug: false
+
+abilities:
+  enabled: true
+
+souls:
+  enabled: true

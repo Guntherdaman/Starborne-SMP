@@ -16,10 +16,10 @@ public class LegendaryIngredientConsumer {
     }
 
     /**
-     * Removes the recipe ingredients after confirmation.
+     * Removes recipe ingredients after confirmation.
      *
-     * Returns false without removing anything if the player
-     * no longer has every required ingredient.
+     * Returns false without changing the inventory if the player
+     * does not have every required ingredient.
      */
     public boolean consumeIngredients(
             Player player,
@@ -29,7 +29,7 @@ public class LegendaryIngredientConsumer {
             return false;
         }
 
-        // Check everything before changing the inventory.
+        // Validate the complete recipe before modifying inventory.
         if (!ingredientChecker.hasIngredients(player, recipe)) {
             return false;
         }
@@ -55,6 +55,13 @@ public class LegendaryIngredientConsumer {
                 if (remaining <= 0) {
                     break;
                 }
+            }
+
+            // Defensive check: never report success if a requirement
+            // could not be fulfilled.
+            if (remaining > 0) {
+                player.updateInventory();
+                return false;
             }
         }
 

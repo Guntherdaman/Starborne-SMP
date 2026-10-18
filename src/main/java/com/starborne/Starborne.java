@@ -31,7 +31,7 @@ public final class Starborne extends JavaPlugin {
         abilityRegistry.registerDefaults();
 
         abilityItem = new AbilityItem(this);
-        trustManager = new TrustManager();
+        trustManager = new TrustManager(this);
 
         getCommand("starborne").setExecutor(
                 new StarborneCommand()

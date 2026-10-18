@@ -15,6 +15,8 @@ import com.starborne.commands.SoulPowerCommand;
 import com.starborne.commands.RitualCommand;
 import com.starborne.rituals.LegendaryRitualManager;
 import com.starborne.rituals.LegendaryRitualListener;
+import com.starborne.rituals.LegendaryRecipeManager;
+import com.starborne.rituals.LegendaryRecipeMenu;
 import com.starborne.rituals.StarborneCraftingTable;
 import com.starborne.rituals.StarborneCraftingTableManager;
 import com.starborne.rituals.StarborneCraftingTableListener;
@@ -39,6 +41,8 @@ public final class Starborne extends JavaPlugin {
 
     private StarborneCraftingTable starborneCraftingTable;
     private StarborneCraftingTableManager craftingTableManager;
+    private LegendaryRecipeManager legendaryRecipeManager;
+    private LegendaryRecipeMenu legendaryRecipeMenu;
 
     @Override
     public void onEnable() {
@@ -60,14 +64,26 @@ public final class Starborne extends JavaPlugin {
         // Initialize the custom Starborne crafting table.
         starborneCraftingTable = new StarborneCraftingTable(this);
         craftingTableManager = new StarborneCraftingTableManager(this);
-
         starborneCraftingTable.registerRecipe();
+
+        // Initialize the Legendary recipe system and menu.
+        legendaryRecipeManager = new LegendaryRecipeManager();
+        legendaryRecipeMenu = new LegendaryRecipeMenu(
+                this,
+                legendaryRecipeManager
+        );
+
+        getServer().getPluginManager().registerEvents(
+                legendaryRecipeMenu,
+                this
+        );
 
         getServer().getPluginManager().registerEvents(
                 new StarborneCraftingTableListener(
                         this,
                         starborneCraftingTable,
-                        craftingTableManager
+                        craftingTableManager,
+                        legendaryRecipeMenu
                 ),
                 this
         );
@@ -182,5 +198,13 @@ public final class Starborne extends JavaPlugin {
 
     public StarborneCraftingTableManager getCraftingTableManager() {
         return craftingTableManager;
+    }
+
+    public LegendaryRecipeManager getLegendaryRecipeManager() {
+        return legendaryRecipeManager;
+    }
+
+    public LegendaryRecipeMenu getLegendaryRecipeMenu() {
+        return legendaryRecipeMenu;
     }
 }

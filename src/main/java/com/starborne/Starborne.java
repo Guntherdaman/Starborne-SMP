@@ -15,6 +15,9 @@ import com.starborne.commands.SoulPowerCommand;
 import com.starborne.commands.RitualCommand;
 import com.starborne.rituals.LegendaryRitualManager;
 import com.starborne.rituals.LegendaryRitualListener;
+import com.starborne.rituals.StarborneCraftingTable;
+import com.starborne.rituals.StarborneCraftingTableManager;
+import com.starborne.rituals.StarborneCraftingTableListener;
 import com.starborne.souls.PvPTierManager;
 import com.starborne.souls.PvPTierListener;
 import com.starborne.souls.SoulStarListener;
@@ -34,6 +37,9 @@ public final class Starborne extends JavaPlugin {
     private LegendaryRitualManager legendaryRitualManager;
     private LegendaryRitualListener legendaryRitualListener;
 
+    private StarborneCraftingTable starborneCraftingTable;
+    private StarborneCraftingTableManager craftingTableManager;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -50,6 +56,21 @@ public final class Starborne extends JavaPlugin {
         soulPowerManager = new SoulPowerManager(this);
 
         legendaryRitualManager = new LegendaryRitualManager(this);
+
+        // Initialize the custom Starborne crafting table.
+        starborneCraftingTable = new StarborneCraftingTable(this);
+        craftingTableManager = new StarborneCraftingTableManager(this);
+
+        starborneCraftingTable.registerRecipe();
+
+        getServer().getPluginManager().registerEvents(
+                new StarborneCraftingTableListener(
+                        this,
+                        starborneCraftingTable,
+                        craftingTableManager
+                ),
+                this
+        );
 
         getServer().getPluginManager().registerEvents(
                 new PvPTierListener(this),
@@ -153,5 +174,13 @@ public final class Starborne extends JavaPlugin {
 
     public LegendaryRitualManager getLegendaryRitualManager() {
         return legendaryRitualManager;
+    }
+
+    public StarborneCraftingTable getStarborneCraftingTable() {
+        return starborneCraftingTable;
+    }
+
+    public StarborneCraftingTableManager getCraftingTableManager() {
+        return craftingTableManager;
     }
 }

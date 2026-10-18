@@ -11,6 +11,13 @@ commands:
     usage: /starborne
     permission: starborne.use
 
+
+  setability:
+    description: Assigns a registered ability to the held item.
+    usage: /setability <ability_id>
+    permission: starborne.admin
+
+
   ability1:
     description: Activates your helmet ability.
     usage: /ability1
@@ -40,6 +47,12 @@ permissions:
   starborne.use:
     description: Allows the player to use /starborne.
     default: true
+
+    
+  starborne.admin:
+    description: Allows access to Starborne developer commands.
+    default: op
+
 
   starborne.ability:
     description: Allows the player to use Starborne abilities.

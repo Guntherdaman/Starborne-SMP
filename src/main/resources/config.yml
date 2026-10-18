@@ -12,3 +12,9 @@ souls:
 legendary:
   crafting-enabled: true
   rituals-enabled: true
+
+legendary:
+  crafting-enabled: true
+  rituals-enabled: true
+  ritual-duration-seconds: 900
+  coordinate-leak-interval-seconds: 300

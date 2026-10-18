@@ -41,7 +41,7 @@ public class AbilityCommand implements CommandExecutor {
         AbilityRegistry registry = plugin.getAbilityRegistry();
         AbilityManager manager = plugin.getAbilityManager();
 
-        Ability ability = registry.get("test ability");
+        Ability ability = registry.get("test_ability");
 
         if (ability == null) {
             player.sendMessage("§cNo ability is registered for this slot yet.");

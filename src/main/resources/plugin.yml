@@ -11,6 +11,10 @@ commands:
     usage: /starborne
     permission: starborne.use
 
+  souls:
+    description: Check a player's Soul Tier and Soul Power value.
+    usage: /souls [player]
+    permission: starborne.ability
 
   setability:
     description: Assigns a registered ability to the held item.

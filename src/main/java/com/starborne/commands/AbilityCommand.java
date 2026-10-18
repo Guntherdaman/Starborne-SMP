@@ -31,6 +31,10 @@ public class AbilityCommand implements CommandExecutor {
         if (!(sender instanceof Player player)) {
             sender.sendMessage("§cOnly players can use abilities.");
             return true;
+            if (!plugin.getConfig().getBoolean("abilities.enabled", true)) {
+    player.sendMessage("§cAbilities are currently disabled.");
+    return true;
+}
         }
 
         AbilitySlot slot = getSlot(command.getName());

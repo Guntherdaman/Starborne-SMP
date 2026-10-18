@@ -14,6 +14,7 @@ import com.starborne.souls.PvPTierManager;
 import com.starborne.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.starborne.souls.PvPTierListener;
+import com.starborne.commands.PvPTierCommand;
 
 public final class Starborne extends JavaPlugin {
 
@@ -44,6 +45,9 @@ public final class Starborne extends JavaPlugin {
         getCommand("starborne").setExecutor(
                 new StarborneCommand()
         );
+        getCommand("pvptier").setExecutor(
+        new PvPTierCommand(this)
+);
 
         AbilityCommand abilityCommand =
                 new AbilityCommand(this);

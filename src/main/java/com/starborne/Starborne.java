@@ -12,6 +12,9 @@ import com.starborne.commands.TrustCommand;
 import com.starborne.commands.SoulsCommand;
 import com.starborne.commands.PvPTierCommand;
 import com.starborne.commands.SoulPowerCommand;
+import com.starborne.commands.RitualCommand;
+import com.starborne.rituals.LegendaryRitualManager;
+import com.starborne.rituals.LegendaryRitualListener;
 import com.starborne.souls.PvPTierManager;
 import com.starborne.souls.PvPTierListener;
 import com.starborne.souls.SoulStarListener;
@@ -28,6 +31,8 @@ public final class Starborne extends JavaPlugin {
     private TrustManager trustManager;
     private PvPTierManager pvPTierManager;
     private SoulPowerManager soulPowerManager;
+    private LegendaryRitualManager legendaryRitualManager;
+    private LegendaryRitualListener legendaryRitualListener;
 
     @Override
     public void onEnable() {
@@ -44,6 +49,8 @@ public final class Starborne extends JavaPlugin {
         pvPTierManager = new PvPTierManager(this);
         soulPowerManager = new SoulPowerManager(this);
 
+        legendaryRitualManager = new LegendaryRitualManager(this);
+
         getServer().getPluginManager().registerEvents(
                 new PvPTierListener(this),
                 this
@@ -57,6 +64,17 @@ public final class Starborne extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new SoulPowerListener(this),
                 this
+        );
+
+        legendaryRitualListener = new LegendaryRitualListener(
+                this,
+                legendaryRitualManager
+        );
+
+        legendaryRitualListener.runTaskTimer(
+                this,
+                20L,
+                20L
         );
 
         getCommand("starborne").setExecutor(
@@ -94,10 +112,18 @@ public final class Starborne extends JavaPlugin {
         getCommand("soulpower").setExecutor(
                 new SoulPowerCommand(this)
         );
+
+        getCommand("ritualstart").setExecutor(
+                new RitualCommand(this, legendaryRitualManager)
+        );
     }
 
     @Override
     public void onDisable() {
+        if (legendaryRitualListener != null) {
+            legendaryRitualListener.cancel();
+        }
+
         getLogger().info("Starborne SMP has been disabled!");
     }
 
@@ -123,5 +149,9 @@ public final class Starborne extends JavaPlugin {
 
     public SoulPowerManager getSoulPowerManager() {
         return soulPowerManager;
+    }
+
+    public LegendaryRitualManager getLegendaryRitualManager() {
+        return legendaryRitualManager;
     }
 }

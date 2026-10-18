@@ -34,7 +34,7 @@ public final class Starborne extends JavaPlugin {
 
         abilityItem = new AbilityItem(this);
         trustManager = new TrustManager(this);
-        pvPTierManager = new PvPTierManager();
+        pvPTierManager = new PvPTierManager(this);
 
         getCommand("starborne").setExecutor(
                 new StarborneCommand()

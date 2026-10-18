@@ -1,14 +1,15 @@
 
+
 package com.starborne;
 
 import com.starborne.abilities.AbilityItem;
 import com.starborne.abilities.AbilityManager;
 import com.starborne.abilities.AbilityRegistry;
+import com.starborne.commands.AbilitiesCommand;
 import com.starborne.commands.AbilityCommand;
 import com.starborne.commands.SetAbilityCommand;
 import com.starborne.commands.StarborneCommand;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.starborne.commands.AbilitiesCommand;
 
 public final class Starborne extends JavaPlugin {
 
@@ -18,25 +19,28 @@ public final class Starborne extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
         getLogger().info("Starborne SMP has been enabled!");
 
         abilityManager = new AbilityManager();
-        saveDefaultConfig();
         abilityRegistry = new AbilityRegistry();
         abilityRegistry.registerDefaults();
 
         abilityItem = new AbilityItem(this);
 
-        getCommand("starborne").setExecutor(new StarborneCommand());
+        getCommand("starborne").setExecutor(
+                new StarborneCommand()
+        );
 
-        AbilityCommand abilityCommand = new AbilityCommand(this);
+        AbilityCommand abilityCommand =
+                new AbilityCommand(this);
 
         getCommand("ability1").setExecutor(abilityCommand);
         getCommand("ability2").setExecutor(abilityCommand);
         getCommand("ability3").setExecutor(abilityCommand);
         getCommand("ability4").setExecutor(abilityCommand);
         getCommand("ability5").setExecutor(abilityCommand);
-
 
         getCommand("setability").setExecutor(
                 new SetAbilityCommand(this)
@@ -45,8 +49,7 @@ public final class Starborne extends JavaPlugin {
         getCommand("abilities").setExecutor(
                 new AbilitiesCommand(this)
         );
-
-);
+    }
 
     @Override
     public void onDisable() {
@@ -65,3 +68,4 @@ public final class Starborne extends JavaPlugin {
         return abilityItem;
     }
 }
+

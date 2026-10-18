@@ -21,15 +21,18 @@ public class StarborneCraftingTableListener implements Listener {
     private final Starborne plugin;
     private final StarborneCraftingTable craftingTable;
     private final StarborneCraftingTableManager tableManager;
+    private final LegendaryRecipeMenu recipeMenu;
 
     public StarborneCraftingTableListener(
             Starborne plugin,
             StarborneCraftingTable craftingTable,
-            StarborneCraftingTableManager tableManager
+            StarborneCraftingTableManager tableManager,
+            LegendaryRecipeMenu recipeMenu
     ) {
         this.plugin = plugin;
         this.craftingTable = craftingTable;
         this.tableManager = tableManager;
+        this.recipeMenu = recipeMenu;
     }
 
     @EventHandler
@@ -98,14 +101,6 @@ public class StarborneCraftingTableListener implements Listener {
             return;
         }
 
-        player.sendMessage(
-                ChatColor.LIGHT_PURPLE
-                        + "✦ Starborne Crafting Table detected!"
-        );
-
-        player.sendMessage(
-                ChatColor.GRAY
-                        + "The Legendary recipe menu is coming next."
-        );
+        recipeMenu.open(player);
     }
 }

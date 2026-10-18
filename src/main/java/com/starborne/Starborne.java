@@ -37,13 +37,16 @@ public final class Starborne extends JavaPlugin {
         getCommand("ability4").setExecutor(abilityCommand);
         getCommand("ability5").setExecutor(abilityCommand);
 
+
         getCommand("setability").setExecutor(
                 new SetAbilityCommand(this)
-            getCommand("abilities").setExecutor(
-        new AbilitiesCommand(this)
-);
         );
-    }
+
+        getCommand("abilities").setExecutor(
+                new AbilitiesCommand(this)
+        );
+
+);
 
     @Override
     public void onDisable() {

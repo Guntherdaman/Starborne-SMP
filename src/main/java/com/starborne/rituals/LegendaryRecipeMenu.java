@@ -353,7 +353,7 @@ public class LegendaryRecipeMenu implements Listener {
                 return;
             }
 
-            confirmationMenu.open(player, recipe);
+            confirmationMenu.open(player, recipe, tableLocation);
         }
     }
 

@@ -1,5 +1,4 @@
 
-
 package com.starborne;
 
 import com.starborne.abilities.AbilityItem;
@@ -9,6 +8,7 @@ import com.starborne.commands.AbilitiesCommand;
 import com.starborne.commands.AbilityCommand;
 import com.starborne.commands.SetAbilityCommand;
 import com.starborne.commands.StarborneCommand;
+import com.starborne.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Starborne extends JavaPlugin {
@@ -16,6 +16,7 @@ public final class Starborne extends JavaPlugin {
     private AbilityManager abilityManager;
     private AbilityRegistry abilityRegistry;
     private AbilityItem abilityItem;
+    private TrustManager trustManager;
 
     @Override
     public void onEnable() {
@@ -28,6 +29,7 @@ public final class Starborne extends JavaPlugin {
         abilityRegistry.registerDefaults();
 
         abilityItem = new AbilityItem(this);
+        trustManager = new TrustManager();
 
         getCommand("starborne").setExecutor(
                 new StarborneCommand()
@@ -67,5 +69,8 @@ public final class Starborne extends JavaPlugin {
     public AbilityItem getAbilityItem() {
         return abilityItem;
     }
-}
 
+    public TrustManager getTrustManager() {
+        return trustManager;
+    }
+}

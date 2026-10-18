@@ -134,83 +134,113 @@ public class LegendaryRecipeMenu implements Listener {
         player.openInventory(inventory);
     }
 
-    private void openMaterials(Player player, LegendaryRecipe recipe) {
-        Inventory inventory = Bukkit.createInventory(
-                null, MENU_SIZE, MATERIALS_TITLE
-        );
+  
+private void openMaterials(Player player, LegendaryRecipe recipe) {
+    Inventory inventory = Bukkit.createInventory(
+            null, MENU_SIZE, MATERIALS_TITLE
+    );
 
-        fillBackground(inventory);
+    fillBackground(inventory);
 
-        inventory.setItem(
-                4,
-                createItem(
-                        recipe.getIcon(),
-                        ChatColor.LIGHT_PURPLE + recipe.getDisplayName(),
-                        ChatColor.GRAY + "Required ingredients are listed below."
-                )
-        );
+    inventory.setItem(
+            4,
+            createItem(
+                    recipe.getIcon(),
+                    ChatColor.LIGHT_PURPLE + recipe.getDisplayName(),
+                    ChatColor.GRAY + "Required ingredients are listed below."
+            )
+    );
 
-        int[] slots = {
-                10, 11, 12, 13, 14, 15, 16,
-                19, 20, 21, 22, 23, 24, 25,
-                28, 29, 30, 31, 32, 33, 34,
-                37, 38, 39, 40, 41, 42, 43
-        };
+    int[] slots = {
+            10, 11, 12, 13, 14, 15, 16,
+            19, 20, 21, 22, 23, 24, 25,
+            28, 29, 30, 31, 32, 33, 34,
+            37, 38, 39, 40, 41, 42, 43
+    };
 
-        int index = 0;
+    int index = 0;
 
-        for (IngredientRequirement requirement
-                : recipe.getRequirements()) {
-
-            if (index >= slots.length) {
-                break;
-            }
-
-            Material material = requirement.getMaterial();
-            int required = requirement.getAmount();
-
-            int missing = ingredientChecker.getMissingAmount(
-                    player,
-                    recipe,
-                    material
-            );
-
-            ItemStack ingredient = new ItemStack(
-                    material,
-                    Math.min(required, material.getMaxStackSize())
-            );
-
-            ItemMeta meta = ingredient.getItemMeta();
-
-            if (meta != null) {
-                meta.setDisplayName(
-                        ChatColor.WHITE + requirement.getDescription()
-                );
-
-                List<String> lore = new ArrayList<>();
-                lore.add(
-                        ChatColor.GRAY + "Required: "
-                                + ChatColor.WHITE + required
-                );
-                lore.add(
-                        ChatColor.GRAY
-                                + "Special properties are checked when crafting."
-                );
-
-                if (missing == 0) {
-                    lore.add(ChatColor.GREEN + "Material available");
-                } else {
-                    lore.add(
-                            ChatColor.RED + "Material missing: " + missing
-                    );
-                }
-
-                meta.setLore(lore);
-                ingredient.setItemMeta(meta);
-            }
-
-            inventory.setItem(slots[index++], ingredient);
+    for (IngredientRequirement requirement : recipe.getRequirements()) {
+        if (index >= slots.length) {
+            break;
         }
+
+        Material material = requirement.getMaterial();
+        int required = requirement.getAmount();
+
+        int missing = ingredientChecker.getMissingAmount(
+                player,
+                recipe,
+                requirement
+        );
+
+        int available = required - missing;
+
+        ItemStack ingredient = new ItemStack(
+                material,
+                Math.min(required, material.getMaxStackSize())
+        );
+
+        ItemMeta meta = ingredient.getItemMeta();
+
+        if (meta != null) {
+            meta.setDisplayName(
+                    ChatColor.WHITE + requirement.getDescription()
+            );
+
+            List<String> lore = new ArrayList<>();
+            lore.add(
+                    ChatColor.GRAY + "Required: "
+                            + ChatColor.WHITE + required
+            );
+            lore.add(
+                    ChatColor.GRAY + "Available: "
+                            + (missing == 0
+                            ? ChatColor.GREEN
+                            : ChatColor.RED)
+                            + available
+            );
+            lore.add(
+                    missing == 0
+                            ? ChatColor.GREEN + "Requirement satisfied"
+                            : ChatColor.RED + "Missing: " + missing
+            );
+
+            meta.setLore(lore);
+            ingredient.setItemMeta(meta);
+        }
+
+        inventory.setItem(slots[index++], ingredient);
+    }
+
+    boolean hasAll = ingredientChecker.hasIngredients(player, recipe);
+
+    inventory.setItem(
+            49,
+            createActionItem(
+                    Material.ARROW,
+                    ChatColor.YELLOW + "Back to Recipes",
+                    "back"
+            )
+    );
+
+    inventory.setItem(
+            53,
+            createActionItem(
+                    hasAll ? Material.LIME_CONCRETE : Material.RED_CONCRETE,
+                    hasAll
+                            ? ChatColor.GREEN + "Review & Confirm"
+                            : ChatColor.RED + "Missing Materials",
+                    "confirm:" + recipe.getId(),
+                    hasAll
+                            ? ChatColor.GRAY + "Continue to ritual confirmation."
+                            : ChatColor.GRAY + "Gather the missing ingredients first."
+            )
+    );
+
+    player.openInventory(inventory);
+}
+
 
         boolean hasAll = ingredientChecker.hasIngredients(player, recipe);
 

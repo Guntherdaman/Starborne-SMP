@@ -16,6 +16,12 @@ commands:
     usage: /souls [player]
     permission: starborne.ability
 
+
+  pvptier:
+    description: View or set a player's PvP tier.
+    usage: /pvptier <player> [tier]
+    permission: starborne.admin
+
   setability:
     description: Assigns a registered ability to the held item.
     usage: /setability <ability_id>

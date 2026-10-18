@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class LegendaryIngredientChecker {
@@ -14,9 +13,7 @@ public class LegendaryIngredientChecker {
             Player player,
             LegendaryRecipe recipe
     ) {
-        return player != null
-                && recipe != null
-                && createAllocation(player, recipe) != null;
+        return createAllocation(player, recipe) != null;
     }
 
     public int getMissingAmount(
@@ -30,27 +27,23 @@ public class LegendaryIngredientChecker {
 
         int totalMissing = 0;
 
-        for (IngredientRequirement requirement
-                : recipe.getRequirements()) {
-
+        for (IngredientRequirement requirement : recipe.getRequirements()) {
             if (requirement.getMaterial() != material) {
                 continue;
             }
 
             int remaining = requirement.getAmount();
 
-            for (ItemStack item
-                    : player.getInventory().getStorageContents()) {
-
+            for (ItemStack item :
+                    player.getInventory().getStorageContents()) {
                 if (item == null || !requirement.matches(item)) {
                     continue;
                 }
 
-                int available = item.getAmount();
-                int taken = Math.min(remaining, available);
+                int taken = Math.min(remaining, item.getAmount());
                 remaining -= taken;
 
-                if (remaining <= 0) {
+                if (remaining == 0) {
                     break;
                 }
             }
@@ -62,8 +55,8 @@ public class LegendaryIngredientChecker {
     }
 
     /**
-     * Allocates separate inventory quantities to every requirement.
-     * The same quantity cannot satisfy two requirements.
+     * Returns an allocation indexed by requirement and inventory slot.
+     * Returns null when the complete recipe cannot be satisfied.
      */
     int[][] createAllocation(
             Player player,

@@ -1,11 +1,8 @@
 
 package com.starborne.rituals;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
 
 public class LegendaryIngredientConsumer {
 
@@ -16,10 +13,11 @@ public class LegendaryIngredientConsumer {
     }
 
     /**
-     * Removes recipe ingredients after confirmation.
+     * Consumes the exact inventory quantities allocated to each
+     * recipe requirement, including special item metadata checks.
      *
-     * Returns false without changing the inventory if the player
-     * does not have every required ingredient.
+     * Returns false without changing inventory if the complete
+     * recipe cannot be satisfied.
      */
     public boolean consumeIngredients(
             Player player,
@@ -29,43 +27,50 @@ public class LegendaryIngredientConsumer {
             return false;
         }
 
-        // Validate the complete recipe before modifying inventory.
-        if (!ingredientChecker.hasIngredients(player, recipe)) {
+        // Calculate the complete allocation before changing anything.
+        int[][] allocation =
+                ingredientChecker.createAllocation(player, recipe);
+
+        if (allocation == null) {
             return false;
         }
 
-        for (Map.Entry<Material, Integer> entry
-                : recipe.getIngredients().entrySet()) {
+        ItemStack[] contents =
+                player.getInventory().getStorageContents();
 
-            Material material = entry.getKey();
-            int remaining = entry.getValue();
+        // Work out how much to remove from each inventory slot.
+        for (int slot = 0; slot < contents.length; slot++) {
+            int totalToRemove = 0;
 
-            for (ItemStack item
-                    : player.getInventory().getStorageContents()) {
-
-                if (item == null || item.getType() != material) {
-                    continue;
-                }
-
-                int taken = Math.min(remaining, item.getAmount());
-
-                item.setAmount(item.getAmount() - taken);
-                remaining -= taken;
-
-                if (remaining <= 0) {
-                    break;
-                }
+            for (int requirement = 0;
+                    requirement < allocation.length;
+                    requirement++) {
+                totalToRemove += allocation[requirement][slot];
             }
 
-            // Defensive check: never report success if a requirement
-            // could not be fulfilled.
-            if (remaining > 0) {
-                player.updateInventory();
+            if (totalToRemove <= 0) {
+                continue;
+            }
+
+            ItemStack item = contents[slot];
+
+            // Defensive validation before modifying the inventory.
+            if (item == null || item.getAmount() < totalToRemove) {
                 return false;
+            }
+
+            int remaining = item.getAmount() - totalToRemove;
+
+            if (remaining <= 0) {
+                contents[slot] = null;
+            } else {
+                item.setAmount(remaining);
             }
         }
 
+        player.getInventory().setStorageContents(contents);
         player.updateInventory();
+
         return true;
     }
 }

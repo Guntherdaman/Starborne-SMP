@@ -12,7 +12,27 @@ public class AbilityRegistry {
     private final Map<String, Ability> abilities = new HashMap<>();
 
     public void register(String id, Ability ability) {
-        abilities.put(id.toLowerCase(), ability);
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Ability ID cannot be empty."
+            );
+        }
+
+        if (ability == null) {
+            throw new IllegalArgumentException(
+                    "Ability cannot be null."
+            );
+        }
+
+        String normalizedId = id.toLowerCase();
+
+        if (abilities.containsKey(normalizedId)) {
+            throw new IllegalArgumentException(
+                    "Duplicate ability ID: " + normalizedId
+            );
+        }
+
+        abilities.put(normalizedId, ability);
     }
 
     public Ability get(String id) {

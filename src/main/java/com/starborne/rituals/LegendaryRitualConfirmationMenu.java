@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -62,10 +63,14 @@ public class LegendaryRitualConfirmationMenu implements Listener {
             LegendaryRecipe recipe,
             Location tableLocation
     ) {
-        if (tableLocation == null || tableLocation.getWorld() == null) {
-            player.sendMessage(
-                    ChatColor.RED + "Invalid crafting table location."
-            );
+        if (player == null || recipe == null
+                || tableLocation == null
+                || tableLocation.getWorld() == null) {
+            if (player != null) {
+                player.sendMessage(
+                        ChatColor.RED + "Invalid ritual or crafting table."
+                );
+            }
             return;
         }
 
@@ -159,15 +164,15 @@ public class LegendaryRitualConfirmationMenu implements Listener {
 
     @EventHandler
     public void onConfirmationClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) {
-            return;
-        }
-
         if (!TITLE.equals(event.getView().getTitle())) {
             return;
         }
 
         event.setCancelled(true);
+
+        if (!(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
 
         if (event.getClickedInventory() == null
                 || event.getClickedInventory()
@@ -215,9 +220,15 @@ public class LegendaryRitualConfirmationMenu implements Listener {
                 .getPersistentDataContainer()
                 .get(recipeIdKey, PersistentDataType.STRING);
 
+        if (recipeId == null) {
+            player.closeInventory();
+            return;
+        }
+
         LegendaryRecipe recipe = recipeManager.getRecipe(recipeId);
 
         if (recipe == null) {
+            selectedTables.remove(player.getUniqueId());
             player.closeInventory();
             player.sendMessage(
                     ChatColor.RED + "That recipe is no longer available."
@@ -230,6 +241,7 @@ public class LegendaryRitualConfirmationMenu implements Listener {
         );
 
         if (tableLocation == null || tableLocation.getWorld() == null) {
+            selectedTables.remove(player.getUniqueId());
             player.closeInventory();
             player.sendMessage(
                     ChatColor.RED
@@ -279,6 +291,7 @@ public class LegendaryRitualConfirmationMenu implements Listener {
             return;
         }
 
+        // Check materials immediately before attempting the ritual.
         if (!ingredientChecker.hasIngredients(player, recipe)) {
             player.closeInventory();
             player.sendMessage(
@@ -288,7 +301,7 @@ public class LegendaryRitualConfirmationMenu implements Listener {
             return;
         }
 
-        // Start first. Do not consume materials if startup fails.
+        // Start the ritual first. If it cannot start, keep the materials.
         boolean started = plugin.getLegendaryRitualManager().startRitual(
                 tableLocation,
                 player.getUniqueId(),
@@ -304,15 +317,19 @@ public class LegendaryRitualConfirmationMenu implements Listener {
             return;
         }
 
-        // Recheck and consume after successful startup.
-        // If inventory contents changed unexpectedly, cancel the ritual.
-        if (!ingredientChecker.hasIngredients(player, recipe)) {
-            plugin.getLegendaryRitualManager().getRitualAt(tableLocation);
+        // Check the consumer's actual result instead of assuming success.
+        boolean consumed = ingredientConsumer.consumeIngredients(
+                player,
+                recipe
+        );
+
+        if (!consumed) {
             var ritual = plugin.getLegendaryRitualManager()
                     .getRitualAt(tableLocation);
 
             if (ritual != null
-                    && ritual.getCreator().equals(player.getUniqueId())) {
+                    && ritual.getCreator().equals(player.getUniqueId())
+                    && recipe.getId().equals(ritual.getRecipeId())) {
                 plugin.getLegendaryRitualManager().removeRitual(
                         ritual.getId()
                 );
@@ -321,12 +338,10 @@ public class LegendaryRitualConfirmationMenu implements Listener {
             player.closeInventory();
             player.sendMessage(
                     ChatColor.RED
-                            + "Your materials changed. The ritual was cancelled."
+                            + "The materials could not be consumed. The ritual was cancelled."
             );
             return;
         }
-
-        ingredientConsumer.consumeIngredients(player, recipe);
 
         selectedTables.remove(player.getUniqueId());
         player.closeInventory();
@@ -339,6 +354,13 @@ public class LegendaryRitualConfirmationMenu implements Listener {
                 ChatColor.GRAY
                         + "The ritual is taking place at your selected table."
         );
+    }
+
+    @EventHandler
+    public void onConfirmationDrag(InventoryDragEvent event) {
+        if (TITLE.equals(event.getView().getTitle())) {
+            event.setCancelled(true);
+        }
     }
 
     private ItemStack createActionItem(

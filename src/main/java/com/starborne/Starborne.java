@@ -11,7 +11,8 @@ import com.starborne.commands.StarborneCommand;
 import com.starborne.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.starborne.commands.TrustCommand;
-
+import com.starborne.commands.SoulsCommand;
+import com.starborne.souls.PvPTierManager;
 
 public final class Starborne extends JavaPlugin {
 
@@ -19,7 +20,7 @@ public final class Starborne extends JavaPlugin {
     private AbilityRegistry abilityRegistry;
     private AbilityItem abilityItem;
     private TrustManager trustManager;
-
+    private PvPTierManager pvPTierManager;
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -32,6 +33,7 @@ public final class Starborne extends JavaPlugin {
 
         abilityItem = new AbilityItem(this);
         trustManager = new TrustManager(this);
+        pvPTierManager = new PvPTierManager();
 
         getCommand("starborne").setExecutor(
                 new StarborneCommand()
@@ -57,6 +59,9 @@ public final class Starborne extends JavaPlugin {
 getCommand("trust").setExecutor(
         new TrustCommand(this)
 );
+        getCommand("souls").setExecutor(
+        new SoulsCommand(this)
+);
 
     }
 
@@ -79,5 +84,8 @@ getCommand("trust").setExecutor(
 
     public TrustManager getTrustManager() {
         return trustManager;
+        public PvPTierManager getPvPTierManager() {
+    return pvPTierManager;
+}
     }
 }

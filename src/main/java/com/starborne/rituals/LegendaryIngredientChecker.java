@@ -16,6 +16,10 @@ public class LegendaryIngredientChecker {
         return createAllocation(player, recipe) != null;
     }
 
+    /**
+     * Compatibility method for existing menus.
+     * Returns missing amounts for all requirements using this material.
+     */
     public int getMissingAmount(
             Player player,
             LegendaryRecipe recipe,
@@ -25,22 +29,60 @@ public class LegendaryIngredientChecker {
             return 0;
         }
 
-        int totalMissing = 0;
+        int missing = 0;
 
         for (IngredientRequirement requirement : recipe.getRequirements()) {
-            if (requirement.getMaterial() != material) {
-                continue;
+            if (requirement.getMaterial() == material) {
+                missing += getMissingAmount(
+                        player, recipe, requirement
+                );
             }
+        }
 
+        return missing;
+    }
+
+    /**
+     * Returns the missing amount for one specific requirement.
+     */
+    public int getMissingAmount(
+            Player player,
+            LegendaryRecipe recipe,
+            IngredientRequirement target
+    ) {
+        if (player == null || recipe == null || target == null) {
+            return 0;
+        }
+
+        ItemStack[] contents =
+                player.getInventory().getStorageContents();
+
+        int[] remainingInSlot = new int[contents.length];
+
+        for (int slot = 0; slot < contents.length; slot++) {
+            ItemStack item = contents[slot];
+            remainingInSlot[slot] =
+                    item == null ? 0 : item.getAmount();
+        }
+
+        for (IngredientRequirement requirement : recipe.getRequirements()) {
             int remaining = requirement.getAmount();
 
-            for (ItemStack item :
-                    player.getInventory().getStorageContents()) {
-                if (item == null || !requirement.matches(item)) {
+            for (int slot = 0; slot < contents.length; slot++) {
+                ItemStack item = contents[slot];
+
+                if (item == null
+                        || remainingInSlot[slot] <= 0
+                        || !requirement.matches(item)) {
                     continue;
                 }
 
-                int taken = Math.min(remaining, item.getAmount());
+                int taken = Math.min(
+                        remaining,
+                        remainingInSlot[slot]
+                );
+
+                remainingInSlot[slot] -= taken;
                 remaining -= taken;
 
                 if (remaining == 0) {
@@ -48,15 +90,18 @@ public class LegendaryIngredientChecker {
                 }
             }
 
-            totalMissing += remaining;
+            if (requirement == target) {
+                return remaining;
+            }
         }
 
-        return totalMissing;
+        return 0;
     }
 
     /**
-     * Returns an allocation indexed by requirement and inventory slot.
-     * Returns null when the complete recipe cannot be satisfied.
+     * Allocates inventory quantities to individual requirements.
+     * A quantity cannot be allocated twice.
+     * Returns null if any requirement cannot be fulfilled.
      */
     int[][] createAllocation(
             Player player,
@@ -116,57 +161,5 @@ public class LegendaryIngredientChecker {
         }
 
         return allocation;
-        
-public int getMissingAmount(
-        Player player,
-        LegendaryRecipe recipe,
-        IngredientRequirement target
-) {
-    if (player == null || recipe == null || target == null) {
-        return 0;
-    }
-
-    ItemStack[] contents =
-            player.getInventory().getStorageContents();
-
-    int[] remainingInSlot = new int[contents.length];
-
-    for (int slot = 0; slot < contents.length; slot++) {
-        ItemStack item = contents[slot];
-        remainingInSlot[slot] =
-                item == null ? 0 : item.getAmount();
-    }
-
-    for (IngredientRequirement requirement : recipe.getRequirements()) {
-        int remaining = requirement.getAmount();
-
-        for (int slot = 0; slot < contents.length; slot++) {
-            ItemStack item = contents[slot];
-
-            if (item == null
-                    || remainingInSlot[slot] <= 0
-                    || !requirement.matches(item)) {
-                continue;
-            }
-
-            int taken = Math.min(
-                    remaining,
-                    remainingInSlot[slot]
-            );
-
-            remainingInSlot[slot] -= taken;
-            remaining -= taken;
-
-            if (remaining == 0) {
-                break;
-            }
-        }
-
-        if (requirement == target) {
-            return remaining;
-        }
-    }
-
-    return 0;
     }
 }

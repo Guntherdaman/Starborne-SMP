@@ -8,6 +8,7 @@ import com.starborne.commands.AbilityCommand;
 import com.starborne.commands.SetAbilityCommand;
 import com.starborne.commands.StarborneCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.starborne.commands.AbilitiesCommand;
 
 public final class Starborne extends JavaPlugin {
 
@@ -38,6 +39,9 @@ public final class Starborne extends JavaPlugin {
 
         getCommand("setability").setExecutor(
                 new SetAbilityCommand(this)
+            getCommand("abilities").setExecutor(
+        new AbilitiesCommand(this)
+);
         );
     }
 

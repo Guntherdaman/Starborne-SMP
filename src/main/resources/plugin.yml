@@ -11,6 +11,13 @@ commands:
     usage: /starborne
     permission: starborne.use
 
+
+  ritualstart:
+    description: Starts an administrator test Legendary ritual.
+    usage: /ritualstart
+    permission: starborne.ritual.admin
+
+
   souls:
     description: Check a player's Soul Tier and Soul Power value.
     usage: /souls [player]
@@ -81,6 +88,10 @@ permissions:
     
   starborne.admin:
     description: Allows access to Starborne developer commands.
+    default: op
+
+  starborne.ritual.admin:
+    description: Allows administrators to start test Legendary rituals.
     default: op
 
 

@@ -13,6 +13,7 @@ import com.starborne.commands.SoulsCommand;
 import com.starborne.souls.PvPTierManager;
 import com.starborne.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.starborne.souls.PvPTierListener;
 
 public final class Starborne extends JavaPlugin {
 
@@ -36,6 +37,10 @@ public final class Starborne extends JavaPlugin {
         trustManager = new TrustManager(this);
         pvPTierManager = new PvPTierManager(this);
 
+        getServer().getPluginManager().registerEvents(
+        new PvPTierListener(this),
+        this
+);
         getCommand("starborne").setExecutor(
                 new StarborneCommand()
         );

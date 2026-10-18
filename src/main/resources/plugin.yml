@@ -49,6 +49,13 @@ commands:
     usage: /ability5
     permission: starborne.ability
 
+    
+  trust:
+    description: Trust or untrust another player.
+    usage: /trust <player>
+    permission: starborne.ability
+
+
 permissions:
   starborne.use:
     description: Allows the player to use /starborne.

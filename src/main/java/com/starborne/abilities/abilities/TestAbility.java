@@ -1,3 +1,4 @@
+
 package com.starborne.abilities.abilities;
 
 import com.starborne.abilities.Ability;
@@ -5,6 +6,11 @@ import com.starborne.abilities.AbilitySlot;
 import org.bukkit.entity.Player;
 
 public class TestAbility implements Ability {
+
+    @Override
+    public String getId() {
+        return "test_ability";
+    }
 
     @Override
     public String getName() {

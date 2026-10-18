@@ -17,6 +17,7 @@ import com.starborne.rituals.LegendaryRitualManager;
 import com.starborne.rituals.LegendaryRitualListener;
 import com.starborne.rituals.LegendaryRecipeManager;
 import com.starborne.rituals.LegendaryRecipeMenu;
+import com.starborne.rituals.LegendaryRitualConfirmationMenu;
 import com.starborne.rituals.StarborneCraftingTable;
 import com.starborne.rituals.StarborneCraftingTableManager;
 import com.starborne.rituals.StarborneCraftingTableListener;
@@ -43,6 +44,7 @@ public final class Starborne extends JavaPlugin {
     private StarborneCraftingTableManager craftingTableManager;
     private LegendaryRecipeManager legendaryRecipeManager;
     private LegendaryRecipeMenu legendaryRecipeMenu;
+    private LegendaryRitualConfirmationMenu confirmationMenu;
 
     @Override
     public void onEnable() {
@@ -66,15 +68,29 @@ public final class Starborne extends JavaPlugin {
         craftingTableManager = new StarborneCraftingTableManager(this);
         starborneCraftingTable.registerRecipe();
 
-        // Initialize the Legendary recipe system and menu.
+        // Initialize the Legendary recipe system.
         legendaryRecipeManager = new LegendaryRecipeManager();
-        legendaryRecipeMenu = new LegendaryRecipeMenu(
+
+        // Initialize the ritual confirmation menu.
+        confirmationMenu = new LegendaryRitualConfirmationMenu(
                 this,
                 legendaryRecipeManager
         );
 
+        // Initialize the recipe menu and connect confirmation.
+        legendaryRecipeMenu = new LegendaryRecipeMenu(
+                this,
+                legendaryRecipeManager,
+                confirmationMenu
+        );
+
         getServer().getPluginManager().registerEvents(
                 legendaryRecipeMenu,
+                this
+        );
+
+        getServer().getPluginManager().registerEvents(
+                confirmationMenu,
                 this
         );
 
@@ -206,5 +222,9 @@ public final class Starborne extends JavaPlugin {
 
     public LegendaryRecipeMenu getLegendaryRecipeMenu() {
         return legendaryRecipeMenu;
+    }
+
+    public LegendaryRitualConfirmationMenu getConfirmationMenu() {
+        return confirmationMenu;
     }
 }

@@ -116,5 +116,59 @@ public class LegendaryIngredientChecker {
         }
 
         return allocation;
+        
+public int getMissingAmount(
+        Player player,
+        LegendaryRecipe recipe,
+        IngredientRequirement target
+) {
+    if (player == null || recipe == null || target == null) {
+        return 0;
+    }
+
+    ItemStack[] contents =
+            player.getInventory().getStorageContents();
+
+    int[] remainingInSlot = new int[contents.length];
+
+    for (int slot = 0; slot < contents.length; slot++) {
+        ItemStack item = contents[slot];
+        remainingInSlot[slot] =
+                item == null ? 0 : item.getAmount();
+    }
+
+    for (IngredientRequirement requirement : recipe.getRequirements()) {
+        int remaining = requirement.getAmount();
+
+        for (int slot = 0; slot < contents.length; slot++) {
+            ItemStack item = contents[slot];
+
+            if (item == null
+                    || remainingInSlot[slot] <= 0
+                    || !requirement.matches(item)) {
+                continue;
+            }
+
+            int taken = Math.min(
+                    remaining,
+                    remainingInSlot[slot]
+            );
+
+            remainingInSlot[slot] -= taken;
+            remaining -= taken;
+
+            if (remaining == 0) {
+                break;
+            }
+        }
+
+        if (requirement == target) {
+            return remaining;
+        }
+    }
+
+    return 0;
+}
+
     }
 }

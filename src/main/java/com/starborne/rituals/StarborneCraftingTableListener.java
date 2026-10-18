@@ -101,6 +101,7 @@ public class StarborneCraftingTableListener implements Listener {
             return;
         }
 
-        recipeMenu.open(player);
+        // Pass the exact table location into the recipe menu.
+        recipeMenu.open(player, block.getLocation());
     }
 }

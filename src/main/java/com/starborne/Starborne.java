@@ -10,12 +10,15 @@ import com.starborne.commands.SetAbilityCommand;
 import com.starborne.commands.StarborneCommand;
 import com.starborne.commands.TrustCommand;
 import com.starborne.commands.SoulsCommand;
+import com.starborne.commands.PvPTierCommand;
+import com.starborne.commands.SoulPowerCommand;
 import com.starborne.souls.PvPTierManager;
+import com.starborne.souls.PvPTierListener;
+import com.starborne.souls.SoulStarListener;
+import com.starborne.souls.SoulPowerManager;
+import com.starborne.souls.SoulPowerListener;
 import com.starborne.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.starborne.souls.PvPTierListener;
-import com.starborne.commands.PvPTierCommand;
-import com.starborne.souls.SoulStarListener;
 
 public final class Starborne extends JavaPlugin {
 
@@ -24,6 +27,7 @@ public final class Starborne extends JavaPlugin {
     private AbilityItem abilityItem;
     private TrustManager trustManager;
     private PvPTierManager pvPTierManager;
+    private SoulPowerManager soulPowerManager;
 
     @Override
     public void onEnable() {
@@ -38,24 +42,28 @@ public final class Starborne extends JavaPlugin {
         abilityItem = new AbilityItem(this);
         trustManager = new TrustManager(this);
         pvPTierManager = new PvPTierManager(this);
+        soulPowerManager = new SoulPowerManager(this);
 
         getServer().getPluginManager().registerEvents(
-        new PvPTierListener(this),
-        this
-);
+                new PvPTierListener(this),
+                this
+        );
+
         getServer().getPluginManager().registerEvents(
-        new SoulStarListener(this),
-        this
-);
+                new SoulStarListener(this),
+                this
+        );
+
+        getServer().getPluginManager().registerEvents(
+                new SoulPowerListener(this),
+                this
+        );
+
         getCommand("starborne").setExecutor(
                 new StarborneCommand()
         );
-        getCommand("pvptier").setExecutor(
-        new PvPTierCommand(this)
-);
 
-        AbilityCommand abilityCommand =
-                new AbilityCommand(this);
+        AbilityCommand abilityCommand = new AbilityCommand(this);
 
         getCommand("ability1").setExecutor(abilityCommand);
         getCommand("ability2").setExecutor(abilityCommand);
@@ -77,6 +85,14 @@ public final class Starborne extends JavaPlugin {
 
         getCommand("souls").setExecutor(
                 new SoulsCommand(this)
+        );
+
+        getCommand("pvptier").setExecutor(
+                new PvPTierCommand(this)
+        );
+
+        getCommand("soulpower").setExecutor(
+                new SoulPowerCommand(this)
         );
     }
 
@@ -103,5 +119,9 @@ public final class Starborne extends JavaPlugin {
 
     public PvPTierManager getPvPTierManager() {
         return pvPTierManager;
+    }
+
+    public SoulPowerManager getSoulPowerManager() {
+        return soulPowerManager;
     }
 }

@@ -40,7 +40,6 @@ public class LegendaryRecipeMenu implements Listener {
     private final NamespacedKey recipeIdKey;
     private final NamespacedKey actionKey;
 
-    // Remembers the crafting table each player selected.
     private final Map<UUID, Location> selectedTables = new HashMap<>();
 
     public LegendaryRecipeMenu(
@@ -54,13 +53,11 @@ public class LegendaryRecipeMenu implements Listener {
         this.confirmationMenu = confirmationMenu;
 
         this.recipeIdKey = new NamespacedKey(
-                plugin,
-                "legendary_recipe_id"
+                plugin, "legendary_recipe_id"
         );
 
         this.actionKey = new NamespacedKey(
-                plugin,
-                "legendary_menu_action"
+                plugin, "legendary_menu_action"
         );
     }
 
@@ -82,9 +79,7 @@ public class LegendaryRecipeMenu implements Listener {
 
     public void open(Player player) {
         Inventory inventory = Bukkit.createInventory(
-                null,
-                MENU_SIZE,
-                MENU_TITLE
+                null, MENU_SIZE, MENU_TITLE
         );
 
         fillBackground(inventory);
@@ -116,8 +111,7 @@ public class LegendaryRecipeMenu implements Listener {
 
                 ItemStack icon = createItem(
                         recipe.getIcon(),
-                        ChatColor.LIGHT_PURPLE
-                                + recipe.getDisplayName(),
+                        ChatColor.LIGHT_PURPLE + recipe.getDisplayName(),
                         ChatColor.GRAY + "Click to view materials",
                         ChatColor.DARK_PURPLE + "Legendary Recipe"
                 );
@@ -130,12 +124,10 @@ public class LegendaryRecipeMenu implements Listener {
                             PersistentDataType.STRING,
                             recipe.getId()
                     );
-
                     icon.setItemMeta(meta);
                 }
 
-                inventory.setItem(slots[index], icon);
-                index++;
+                inventory.setItem(slots[index++], icon);
             }
         }
 
@@ -144,9 +136,7 @@ public class LegendaryRecipeMenu implements Listener {
 
     private void openMaterials(Player player, LegendaryRecipe recipe) {
         Inventory inventory = Bukkit.createInventory(
-                null,
-                MENU_SIZE,
-                MATERIALS_TITLE
+                null, MENU_SIZE, MATERIALS_TITLE
         );
 
         fillBackground(inventory);
@@ -156,34 +146,34 @@ public class LegendaryRecipeMenu implements Listener {
                 createItem(
                         recipe.getIcon(),
                         ChatColor.LIGHT_PURPLE + recipe.getDisplayName(),
-                        ChatColor.GRAY + "Required materials are listed below."
+                        ChatColor.GRAY + "Required ingredients are listed below."
                 )
         );
 
         int[] slots = {
+                10, 11, 12, 13, 14, 15, 16,
                 19, 20, 21, 22, 23, 24, 25,
-                28, 29, 30, 31, 32, 33, 34
+                28, 29, 30, 31, 32, 33, 34,
+                37, 38, 39, 40, 41, 42, 43
         };
 
         int index = 0;
 
-        for (Map.Entry<Material, Integer> entry
-                : recipe.getIngredients().entrySet()) {
+        for (IngredientRequirement requirement
+                : recipe.getRequirements()) {
 
             if (index >= slots.length) {
                 break;
             }
 
-            Material material = entry.getKey();
-            int required = entry.getValue();
+            Material material = requirement.getMaterial();
+            int required = requirement.getAmount();
 
             int missing = ingredientChecker.getMissingAmount(
                     player,
                     recipe,
                     material
             );
-
-            int available = required - missing;
 
             ItemStack ingredient = new ItemStack(
                     material,
@@ -194,42 +184,35 @@ public class LegendaryRecipeMenu implements Listener {
 
             if (meta != null) {
                 meta.setDisplayName(
-                        ChatColor.WHITE + formatMaterialName(material)
+                        ChatColor.WHITE + requirement.getDescription()
                 );
 
                 List<String> lore = new ArrayList<>();
-
                 lore.add(
                         ChatColor.GRAY + "Required: "
                                 + ChatColor.WHITE + required
                 );
-
                 lore.add(
-                        ChatColor.GRAY + "You have: "
-                                + (missing == 0
-                                ? ChatColor.GREEN
-                                : ChatColor.RED)
-                                + available
+                        ChatColor.GRAY
+                                + "Special properties are checked when crafting."
                 );
 
-                lore.add(
-                        missing == 0
-                                ? ChatColor.GREEN + "Enough materials"
-                                : ChatColor.RED + "Missing: " + missing
-                );
+                if (missing == 0) {
+                    lore.add(ChatColor.GREEN + "Material available");
+                } else {
+                    lore.add(
+                            ChatColor.RED + "Material missing: " + missing
+                    );
+                }
 
                 meta.setLore(lore);
                 ingredient.setItemMeta(meta);
             }
 
-            inventory.setItem(slots[index], ingredient);
-            index++;
+            inventory.setItem(slots[index++], ingredient);
         }
 
-        boolean hasAll = ingredientChecker.hasIngredients(
-                player,
-                recipe
-        );
+        boolean hasAll = ingredientChecker.hasIngredients(player, recipe);
 
         inventory.setItem(
                 49,
@@ -333,7 +316,7 @@ public class LegendaryRecipeMenu implements Listener {
             if (!ingredientChecker.hasIngredients(player, recipe)) {
                 player.sendMessage(
                         ChatColor.RED
-                                + "You no longer have all the required materials."
+                                + "You no longer have all required ingredients."
                 );
                 openMaterials(player, recipe);
                 return;
@@ -383,7 +366,6 @@ public class LegendaryRecipeMenu implements Listener {
                     PersistentDataType.STRING,
                     action
             );
-
             item.setItemMeta(meta);
         }
 
@@ -405,22 +387,5 @@ public class LegendaryRecipeMenu implements Listener {
         }
 
         return item;
-    }
-
-    private String formatMaterialName(Material material) {
-        String[] words = material.name().toLowerCase().split("_");
-        StringBuilder result = new StringBuilder();
-
-        for (String word : words) {
-            if (result.length() > 0) {
-                result.append(' ');
-            }
-
-            result.append(
-                    Character.toUpperCase(word.charAt(0))
-            ).append(word.substring(1));
-        }
-
-        return result.toString();
     }
 }

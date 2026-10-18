@@ -27,14 +27,22 @@ public class AbilityCommand implements CommandExecutor {
             String label,
             String[] args
     ) {
-
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cOnly players can use abilities.");
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(
+                    "§cOnly players can use abilities."
+            );
             return true;
-            if (!plugin.getConfig().getBoolean("abilities.enabled", true)) {
-    player.sendMessage("§cAbilities are currently disabled.");
-    return true;
-}
+        }
+
+        Player player = (Player) sender;
+
+        if (!plugin.getConfig().getBoolean(
+                "abilities.enabled", true
+        )) {
+            player.sendMessage(
+                    "§cAbilities are currently disabled."
+            );
+            return true;
         }
 
         AbilitySlot slot = getSlot(command.getName());

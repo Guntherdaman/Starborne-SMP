@@ -12,32 +12,23 @@ public class AbilityManager {
     private final Map<UUID, Map<String, Long>> cooldowns =
             new HashMap<>();
 
+    public boolean activate(Player player, Ability ability) {
+        if (ability.getCooldown() < 0) {
+            player.sendMessage(
+                    "§cThis ability has an invalid cooldown."
+            );
+            return false;
+        }
 
-public boolean activate(Player player, Ability ability) {
-    if (ability.getCooldown() < 0) {
-        player.sendMessage(
-                "§cThis ability has an invalid cooldown."
-        );
-        return false;
-    }
+        if (isOnCooldown(player, ability)) {
+            long remaining =
+                    getRemainingCooldown(player, ability);
 
-    if (isOnCooldown(player, ability)) {
-        long remaining = getRemainingCooldown(player, ability);
-        long seconds = (remaining + 999) / 1000;
+            long seconds = (remaining + 999) / 1000;
 
-        player.sendMessage(
-                "§cThat ability is on cooldown for "
-                        + seconds + "s."
-        );
-        return false;
-    }
-
-    ability.activate(player);
-    setCooldown(player, ability);
-
-    return true;
-}
-
+            player.sendMessage(
+                    "§cThat ability is on cooldown for "
+                            + seconds + "s."
             );
             return false;
         }
@@ -48,7 +39,10 @@ public boolean activate(Player player, Ability ability) {
         return true;
     }
 
-    public boolean isOnCooldown(Player player, Ability ability) {
+    public boolean isOnCooldown(
+            Player player,
+            Ability ability
+    ) {
         return getRemainingCooldown(player, ability) > 0;
     }
 
@@ -75,7 +69,10 @@ public boolean activate(Player player, Ability ability) {
         );
     }
 
-    private void setCooldown(Player player, Ability ability) {
+    private void setCooldown(
+            Player player,
+            Ability ability
+    ) {
         cooldowns
                 .computeIfAbsent(
                         player.getUniqueId(),

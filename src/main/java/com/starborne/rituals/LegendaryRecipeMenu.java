@@ -4,6 +4,7 @@ package com.starborne.rituals;
 import com.starborne.Starborne;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -16,8 +17,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class LegendaryRecipeMenu implements Listener {
 
@@ -36,6 +39,9 @@ public class LegendaryRecipeMenu implements Listener {
 
     private final NamespacedKey recipeIdKey;
     private final NamespacedKey actionKey;
+
+    // Remembers the crafting table each player selected.
+    private final Map<UUID, Location> selectedTables = new HashMap<>();
 
     public LegendaryRecipeMenu(
             Starborne plugin,
@@ -56,6 +62,22 @@ public class LegendaryRecipeMenu implements Listener {
                 plugin,
                 "legendary_menu_action"
         );
+    }
+
+    public void open(Player player, Location tableLocation) {
+        if (tableLocation == null || tableLocation.getWorld() == null) {
+            player.sendMessage(
+                    ChatColor.RED + "Invalid crafting table location."
+            );
+            return;
+        }
+
+        selectedTables.put(
+                player.getUniqueId(),
+                tableLocation.clone()
+        );
+
+        open(player);
     }
 
     public void open(Player player) {
@@ -314,6 +336,20 @@ public class LegendaryRecipeMenu implements Listener {
                                 + "You no longer have all the required materials."
                 );
                 openMaterials(player, recipe);
+                return;
+            }
+
+            Location tableLocation = selectedTables.get(
+                    player.getUniqueId()
+            );
+
+            if (tableLocation == null
+                    || tableLocation.getWorld() == null) {
+                player.sendMessage(
+                        ChatColor.RED
+                                + "Please reopen the menu at a Starborne Crafting Table."
+                );
+                player.closeInventory();
                 return;
             }
 

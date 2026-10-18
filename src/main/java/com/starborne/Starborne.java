@@ -10,6 +10,8 @@ import com.starborne.commands.SetAbilityCommand;
 import com.starborne.commands.StarborneCommand;
 import com.starborne.trust.TrustManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.starborne.commands.TrustCommand;
+
 
 public final class Starborne extends JavaPlugin {
 
@@ -51,6 +53,11 @@ public final class Starborne extends JavaPlugin {
         getCommand("abilities").setExecutor(
                 new AbilitiesCommand(this)
         );
+        
+getCommand("trust").setExecutor(
+        new TrustCommand(this)
+);
+
     }
 
     @Override

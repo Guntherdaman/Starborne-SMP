@@ -1,5 +1,4 @@
 
-
 package com.starborne.rituals;
 
 import com.starborne.Starborne;
@@ -33,17 +32,20 @@ public class LegendaryRecipeMenu implements Listener {
     private final Starborne plugin;
     private final LegendaryRecipeManager recipeManager;
     private final LegendaryIngredientChecker ingredientChecker;
+    private final LegendaryRitualConfirmationMenu confirmationMenu;
 
     private final NamespacedKey recipeIdKey;
     private final NamespacedKey actionKey;
 
     public LegendaryRecipeMenu(
             Starborne plugin,
-            LegendaryRecipeManager recipeManager
+            LegendaryRecipeManager recipeManager,
+            LegendaryRitualConfirmationMenu confirmationMenu
     ) {
         this.plugin = plugin;
         this.recipeManager = recipeManager;
         this.ingredientChecker = new LegendaryIngredientChecker();
+        this.confirmationMenu = confirmationMenu;
 
         this.recipeIdKey = new NamespacedKey(
                 plugin,
@@ -170,8 +172,7 @@ public class LegendaryRecipeMenu implements Listener {
 
             if (meta != null) {
                 meta.setDisplayName(
-                        ChatColor.WHITE
-                                + formatMaterialName(material)
+                        ChatColor.WHITE + formatMaterialName(material)
                 );
 
                 List<String> lore = new ArrayList<>();
@@ -316,10 +317,7 @@ public class LegendaryRecipeMenu implements Listener {
                 return;
             }
 
-            player.sendMessage(
-                    ChatColor.YELLOW
-                            + "Confirmation screen is coming next!"
-            );
+            confirmationMenu.open(player, recipe);
         }
     }
 

@@ -22,6 +22,13 @@ commands:
     usage: /pvptier <player> [tier]
     permission: starborne.admin
 
+
+  soulpower:
+    description: Check the Soul Power of your held Legendary or Mythic.
+    usage: /soulpower
+    permission: starborne.ability
+
+
   setability:
     description: Assigns a registered ability to the held item.
     usage: /setability <ability_id>

@@ -1,3 +1,4 @@
+
 package com.starborne.commands;
 
 import com.starborne.Starborne;
@@ -9,6 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class AbilityCommand implements CommandExecutor {
 
@@ -38,28 +40,42 @@ public class AbilityCommand implements CommandExecutor {
             return true;
         }
 
-        AbilityRegistry registry = plugin.getAbilityRegistry();
-        AbilityManager manager = plugin.getAbilityManager();
+        ItemStack item = slot.getItem(player);
 
-        Ability ability = registry.get("test_ability");
+        String abilityId =
+                plugin.getAbilityItem().getAbilityId(item);
+
+        if (abilityId == null) {
+            player.sendMessage(
+                    "§cNo Starborne ability is assigned to that item."
+            );
+            return true;
+        }
+
+        AbilityRegistry registry = plugin.getAbilityRegistry();
+        Ability ability = registry.get(abilityId);
 
         if (ability == null) {
-            player.sendMessage("§cNo ability is registered for this slot yet.");
+            player.sendMessage(
+                    "§cThat item's ability is not registered."
+            );
             return true;
         }
 
         if (ability.getSlot() != slot) {
-            player.sendMessage("§cYou don't have an ability for this slot yet.");
+            player.sendMessage(
+                    "§cThat ability belongs to a different slot."
+            );
             return true;
         }
 
+        AbilityManager manager = plugin.getAbilityManager();
         manager.activate(player, ability);
 
         return true;
     }
 
     private AbilitySlot getSlot(String commandName) {
-
         return switch (commandName.toLowerCase()) {
             case "ability1" -> AbilitySlot.HELMET;
             case "ability2" -> AbilitySlot.CHESTPLATE;

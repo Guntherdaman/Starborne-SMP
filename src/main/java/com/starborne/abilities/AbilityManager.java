@@ -45,7 +45,7 @@ public class AbilityManager {
             return 0;
         }
 
-        Long endTime = playerCooldowns.get(ability.getName());
+        Long endTime = playerCooldowns.get(ability.getId());
 
         if (endTime == null) {
             return 0;
@@ -64,7 +64,7 @@ public class AbilityManager {
                         uuid -> new HashMap<>()
                 )
                 .put(
-                        ability.getName(),
+                        ability.getId(),
                         System.currentTimeMillis()
                                 + ability.getCooldown()
                 );

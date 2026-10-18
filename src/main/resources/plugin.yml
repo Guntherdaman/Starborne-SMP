@@ -18,6 +18,12 @@ commands:
     permission: starborne.admin
 
 
+  abilities:
+    description: Shows your equipped abilities and cooldowns.
+    usage: /abilities
+    permission: starborne.ability
+
+
   ability1:
     description: Activates your helmet ability.
     usage: /ability1

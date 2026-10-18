@@ -20,6 +20,7 @@ public final class Starborne extends JavaPlugin {
         getLogger().info("Starborne SMP has been enabled!");
 
         abilityManager = new AbilityManager();
+        saveDefaultConfig();
         abilityRegistry = new AbilityRegistry();
         abilityRegistry.registerDefaults();
 

@@ -12,14 +12,32 @@ public class AbilityManager {
     private final Map<UUID, Map<String, Long>> cooldowns =
             new HashMap<>();
 
-    public boolean activate(Player player, Ability ability) {
-        if (isOnCooldown(player, ability)) {
-            long remaining = getRemainingCooldown(player, ability);
-            long seconds = (remaining + 999) / 1000;
 
-            player.sendMessage(
-                    "§cThat ability is on cooldown for "
-                            + seconds + "s."
+public boolean activate(Player player, Ability ability) {
+    if (ability.getCooldown() < 0) {
+        player.sendMessage(
+                "§cThis ability has an invalid cooldown."
+        );
+        return false;
+    }
+
+    if (isOnCooldown(player, ability)) {
+        long remaining = getRemainingCooldown(player, ability);
+        long seconds = (remaining + 999) / 1000;
+
+        player.sendMessage(
+                "§cThat ability is on cooldown for "
+                        + seconds + "s."
+        );
+        return false;
+    }
+
+    ability.activate(player);
+    setCooldown(player, ability);
+
+    return true;
+}
+
             );
             return false;
         }

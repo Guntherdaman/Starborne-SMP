@@ -4,8 +4,10 @@ package com.starborne.rituals;
 import com.starborne.Starborne;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,7 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class LegendaryRitualConfirmationMenu implements Listener {
 
@@ -25,8 +30,12 @@ public class LegendaryRitualConfirmationMenu implements Listener {
     private final Starborne plugin;
     private final LegendaryRecipeManager recipeManager;
     private final LegendaryIngredientChecker ingredientChecker;
+    private final LegendaryIngredientConsumer ingredientConsumer;
+
     private final NamespacedKey recipeIdKey;
     private final NamespacedKey actionKey;
+
+    private final Map<UUID, Location> selectedTables = new HashMap<>();
 
     public LegendaryRitualConfirmationMenu(
             Starborne plugin,
@@ -35,6 +44,7 @@ public class LegendaryRitualConfirmationMenu implements Listener {
         this.plugin = plugin;
         this.recipeManager = recipeManager;
         this.ingredientChecker = new LegendaryIngredientChecker();
+        this.ingredientConsumer = new LegendaryIngredientConsumer();
 
         this.recipeIdKey = new NamespacedKey(
                 plugin,
@@ -47,7 +57,23 @@ public class LegendaryRitualConfirmationMenu implements Listener {
         );
     }
 
-    public void open(Player player, LegendaryRecipe recipe) {
+    public void open(
+            Player player,
+            LegendaryRecipe recipe,
+            Location tableLocation
+    ) {
+        if (tableLocation == null || tableLocation.getWorld() == null) {
+            player.sendMessage(
+                    ChatColor.RED + "Invalid crafting table location."
+            );
+            return;
+        }
+
+        selectedTables.put(
+                player.getUniqueId(),
+                tableLocation.clone()
+        );
+
         Inventory inventory = Bukkit.createInventory(null, 27, TITLE);
 
         ItemStack filler = createItem(
@@ -66,26 +92,24 @@ public class LegendaryRitualConfirmationMenu implements Listener {
 
         inventory.setItem(
                 13,
-                createItem(
-                        recipe.getIcon(),
-                        ChatColor.LIGHT_PURPLE + recipe.getDisplayName(),
-                        ChatColor.GRAY + "Review this Legendary ritual.",
-                        ChatColor.GRAY + "Required materials: "
-                                + recipe.getIngredients().size()
-                                + " ingredient types",
-                        hasIngredients
-                                ? ChatColor.GREEN + "You have all materials."
-                                : ChatColor.RED + "You are missing materials."
-                )
+                createRecipeItem(recipe, hasIngredients)
         );
 
         inventory.setItem(
                 11,
                 createActionItem(
-                        Material.LIME_CONCRETE,
-                        ChatColor.GREEN + "Confirm Ritual",
+                        hasIngredients
+                                ? Material.LIME_CONCRETE
+                                : Material.RED_CONCRETE,
+                        hasIngredients
+                                ? ChatColor.GREEN + "Confirm Ritual"
+                                : ChatColor.RED + "Missing Materials",
                         "confirm",
-                        ChatColor.GRAY + "Attempt to begin this ritual."
+                        hasIngredients
+                                ? ChatColor.GRAY
+                                    + "Consume materials and begin the ritual."
+                                : ChatColor.GRAY
+                                    + "Gather the required materials first."
                 )
         );
 
@@ -95,23 +119,42 @@ public class LegendaryRitualConfirmationMenu implements Listener {
                         Material.RED_CONCRETE,
                         ChatColor.RED + "Cancel",
                         "cancel",
-                        ChatColor.GRAY + "Return to the recipe menu."
+                        ChatColor.GRAY + "Close this confirmation screen."
                 )
         );
 
-        ItemMeta recipeMeta = inventory.getItem(13).getItemMeta();
+        player.openInventory(inventory);
+    }
 
-        if (recipeMeta != null) {
-            recipeMeta.getPersistentDataContainer().set(
+    private ItemStack createRecipeItem(
+            LegendaryRecipe recipe,
+            boolean hasIngredients
+    ) {
+        ItemStack item = createItem(
+                recipe.getIcon(),
+                ChatColor.LIGHT_PURPLE + recipe.getDisplayName(),
+                ChatColor.GRAY + "Review this Legendary ritual.",
+                ChatColor.GRAY + "Required materials: "
+                        + recipe.getIngredients().size()
+                        + " ingredient types",
+                hasIngredients
+                        ? ChatColor.GREEN + "You have all materials."
+                        : ChatColor.RED + "You are missing materials."
+        );
+
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta != null) {
+            meta.getPersistentDataContainer().set(
                     recipeIdKey,
                     PersistentDataType.STRING,
                     recipe.getId()
             );
 
-            inventory.getItem(13).setItemMeta(recipeMeta);
+            item.setItemMeta(meta);
         }
 
-        player.openInventory(inventory);
+        return item;
     }
 
     @EventHandler
@@ -147,6 +190,7 @@ public class LegendaryRitualConfirmationMenu implements Listener {
         }
 
         if ("cancel".equals(action)) {
+            selectedTables.remove(player.getUniqueId());
             player.closeInventory();
             player.sendMessage(
                     ChatColor.GRAY + "Legendary ritual cancelled."
@@ -181,19 +225,119 @@ public class LegendaryRitualConfirmationMenu implements Listener {
             return;
         }
 
+        Location tableLocation = selectedTables.get(
+                player.getUniqueId()
+        );
+
+        if (tableLocation == null || tableLocation.getWorld() == null) {
+            player.closeInventory();
+            player.sendMessage(
+                    ChatColor.RED
+                            + "Please reopen the menu at a Starborne Crafting Table."
+            );
+            return;
+        }
+
+        if (!plugin.getCraftingTableManager()
+                .isRegisteredTable(tableLocation)) {
+            selectedTables.remove(player.getUniqueId());
+            player.closeInventory();
+            player.sendMessage(
+                    ChatColor.RED
+                            + "That Starborne Crafting Table is no longer registered."
+            );
+            return;
+        }
+
+        Block tableBlock = tableLocation.getBlock();
+
+        if (tableBlock.getType() != Material.CRAFTING_TABLE) {
+            selectedTables.remove(player.getUniqueId());
+            player.closeInventory();
+            player.sendMessage(
+                    ChatColor.RED + "The crafting table no longer exists."
+            );
+            return;
+        }
+
+        if (!plugin.getLegendaryRitualManager().areRitualsEnabled()) {
+            player.closeInventory();
+            player.sendMessage(
+                    ChatColor.RED
+                            + "Legendary crafting or rituals are currently disabled."
+            );
+            return;
+        }
+
+        if (plugin.getLegendaryRitualManager()
+                .isRitualActive(tableLocation)) {
+            player.closeInventory();
+            player.sendMessage(
+                    ChatColor.RED
+                            + "A ritual is already active at this table."
+            );
+            return;
+        }
+
         if (!ingredientChecker.hasIngredients(player, recipe)) {
+            player.closeInventory();
             player.sendMessage(
                     ChatColor.RED
                             + "You no longer have all required materials."
             );
-            player.closeInventory();
             return;
         }
 
+        // Start first. Do not consume materials if startup fails.
+        boolean started = plugin.getLegendaryRitualManager().startRitual(
+                tableLocation,
+                player.getUniqueId(),
+                recipe.getId()
+        );
+
+        if (!started) {
+            player.closeInventory();
+            player.sendMessage(
+                    ChatColor.RED
+                            + "The ritual could not start. Your materials were not consumed."
+            );
+            return;
+        }
+
+        // Recheck and consume after successful startup.
+        // If inventory contents changed unexpectedly, cancel the ritual.
+        if (!ingredientChecker.hasIngredients(player, recipe)) {
+            plugin.getLegendaryRitualManager().getRitualAt(tableLocation);
+            var ritual = plugin.getLegendaryRitualManager()
+                    .getRitualAt(tableLocation);
+
+            if (ritual != null
+                    && ritual.getCreator().equals(player.getUniqueId())) {
+                plugin.getLegendaryRitualManager().removeRitual(
+                        ritual.getId()
+                );
+            }
+
+            player.closeInventory();
+            player.sendMessage(
+                    ChatColor.RED
+                            + "Your materials changed. The ritual was cancelled."
+            );
+            return;
+        }
+
+        ingredientConsumer.consumeIngredients(player, recipe);
+
+        selectedTables.remove(player.getUniqueId());
+        player.closeInventory();
+
         player.sendMessage(
-                ChatColor.YELLOW
-                        + "Confirmation received! Ritual startup will be "
-                        + "connected in the next step."
+                ChatColor.LIGHT_PURPLE + "✦ Legendary ritual started!"
+        );
+
+        player.sendMessage(
+                ChatColor.GRAY
+                        + "The ritual is taking place at your selected table."
         );
     }
 

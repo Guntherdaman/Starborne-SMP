@@ -1,3 +1,4 @@
+
 # Starborne SMP Configuration
 
 plugin:
@@ -8,10 +9,6 @@ abilities:
 
 souls:
   enabled: true
-
-legendary:
-  crafting-enabled: true
-  rituals-enabled: true
 
 legendary:
   crafting-enabled: true

@@ -2,6 +2,8 @@
 package com.starborne.rituals;
 
 import com.starborne.Starborne;
+import com.starborne.souls.PvPTier;
+import com.starborne.souls.SoulStarItem;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +34,8 @@ public final class FirstWaveRecipes {
             );
         }
 
+        SoulStarItem soulStarItem = new SoulStarItem(plugin);
+
         register(manager, "resistance_chestplate",
                 "Resistance Chestplate", Material.NETHERITE_CHESTPLATE,
                 potion(Material.SPLASH_POTION, 4,
@@ -43,7 +47,11 @@ public final class FirstWaveRecipes {
                 req(Material.GOLDEN_APPLE, 128, "Golden Apple"),
                 req(Material.NETHERITE_CHESTPLATE, 1,
                         "Netherite Chestplate"),
-                req(Material.NETHER_STAR, 1, "Soul Star"));
+                matching(Material.NETHER_STAR, 1,
+                        "S-Tier Soul Star",
+                        item -> soulStarItem.isSoulStar(item)
+                                && soulStarItem.getTier(item)
+                                == PvPTier.S));
 
         registerHealthPiece(manager, "health_chestplate",
                 "Health Chestplate", Material.NETHERITE_CHESTPLATE);
@@ -212,12 +220,8 @@ public final class FirstWaveRecipes {
             String description,
             PotionType type
     ) {
-        return matching(
-                material,
-                amount,
-                description,
-                IngredientMatchers.potion(type)
-        );
+        return matching(material, amount, description,
+                IngredientMatchers.potion(type));
     }
 
     private static IngredientRequirement enchantedBook(
@@ -227,12 +231,8 @@ public final class FirstWaveRecipes {
             Enchantment enchantment,
             int level
     ) {
-        return matching(
-                material,
-                amount,
-                description,
-                IngredientMatchers.enchantedBook(enchantment, level)
-        );
+        return matching(material, amount, description,
+                IngredientMatchers.enchantedBook(enchantment, level));
     }
 
     private static IngredientRequirement matching(
@@ -242,8 +242,7 @@ public final class FirstWaveRecipes {
             Predicate<ItemStack> matcher
     ) {
         return new IngredientRequirement(
-                material, amount, description, matcher
-        );
+                material, amount, description, matcher);
     }
 
     private static void register(
@@ -257,13 +256,11 @@ public final class FirstWaveRecipes {
                 new ArrayList<>(List.of(ingredients));
 
         LegendaryRecipe recipe = new LegendaryRecipe(
-                id, name, icon, requirements
-        );
+                id, name, icon, requirements);
 
         if (!manager.registerRecipe(recipe)) {
             throw new IllegalStateException(
-                    "Could not register recipe: " + id
-            );
+                    "Could not register recipe: " + id);
         }
     }
 }

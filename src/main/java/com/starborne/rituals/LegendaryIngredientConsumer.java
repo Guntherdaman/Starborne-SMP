@@ -4,6 +4,8 @@ package com.starborne.rituals;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+
 public class LegendaryIngredientConsumer {
 
     private final LegendaryIngredientChecker ingredientChecker;
@@ -13,11 +15,11 @@ public class LegendaryIngredientConsumer {
     }
 
     /**
-     * Consumes the exact inventory quantities allocated to each
-     * recipe requirement, including special item metadata checks.
+     * Removes the exact item quantities allocated by the ingredient
+     * checker, including ingredients with special item requirements.
      *
-     * Returns false without changing inventory if the complete
-     * recipe cannot be satisfied.
+     * Returns false without changing inventory if requirements
+     * cannot be fulfilled.
      */
     public boolean consumeIngredients(
             Player player,
@@ -27,9 +29,12 @@ public class LegendaryIngredientConsumer {
             return false;
         }
 
-        // Calculate the complete allocation before changing anything.
-        int[][] allocation =
-                ingredientChecker.createAllocation(player, recipe);
+        // Build one allocation so validation and consumption agree
+        // about which inventory stacks satisfy each requirement.
+        int[][] allocation = ingredientChecker.createAllocation(
+                player,
+                recipe
+        );
 
         if (allocation == null) {
             return false;
@@ -38,33 +43,55 @@ public class LegendaryIngredientConsumer {
         ItemStack[] contents =
                 player.getInventory().getStorageContents();
 
-        // Work out how much to remove from each inventory slot.
-        for (int slot = 0; slot < contents.length; slot++) {
-            int totalToRemove = 0;
+        List<IngredientRequirement> requirements =
+                recipe.getRequirements();
 
-            for (int requirement = 0;
-                    requirement < allocation.length;
-                    requirement++) {
-                totalToRemove += allocation[requirement][slot];
+        // Consume only the stacks allocated to each requirement.
+        for (int requirementIndex = 0;
+             requirementIndex < requirements.size();
+             requirementIndex++) {
+
+            for (int slot = 0; slot < contents.length; slot++) {
+                int amountToRemove =
+                        allocation[requirementIndex][slot];
+
+                if (amountToRemove <= 0) {
+                    continue;
+                }
+
+                ItemStack item = contents[slot];
+
+                // Defensive check in case inventory contents changed.
+                if (item == null
+                        || item.getAmount() < amountToRemove
+                        || !requirements.get(requirementIndex)
+                                .matches(item)) {
+                    return false;
+                }
             }
+        }
 
-            if (totalToRemove <= 0) {
-                continue;
-            }
+        // All allocated stacks are validated before any are changed.
+        for (int requirementIndex = 0;
+             requirementIndex < requirements.size();
+             requirementIndex++) {
 
-            ItemStack item = contents[slot];
+            for (int slot = 0; slot < contents.length; slot++) {
+                int amountToRemove =
+                        allocation[requirementIndex][slot];
 
-            // Defensive validation before modifying the inventory.
-            if (item == null || item.getAmount() < totalToRemove) {
-                return false;
-            }
+                if (amountToRemove <= 0) {
+                    continue;
+                }
 
-            int remaining = item.getAmount() - totalToRemove;
+                ItemStack item = contents[slot];
+                int remaining = item.getAmount() - amountToRemove;
 
-            if (remaining <= 0) {
-                contents[slot] = null;
-            } else {
-                item.setAmount(remaining);
+                if (remaining <= 0) {
+                    contents[slot] = null;
+                } else {
+                    item.setAmount(remaining);
+                }
             }
         }
 

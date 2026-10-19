@@ -18,8 +18,8 @@ public class LegendaryIngredientConsumer {
      * Removes the exact item quantities allocated by the ingredient
      * checker, including ingredients with special item requirements.
      *
-     * Returns false without changing inventory if requirements
-     * cannot be fulfilled.
+     * Returns false without changing the inventory if the requirements
+     * cannot be fulfilled or the allocation is invalid.
      */
     public boolean consumeIngredients(
             Player player,
@@ -29,69 +29,101 @@ public class LegendaryIngredientConsumer {
             return false;
         }
 
-        // Build one allocation so validation and consumption agree
-        // about which inventory stacks satisfy each requirement.
+        List<IngredientRequirement> requirements =
+                recipe.getRequirements();
+
+        if (requirements == null) {
+            return false;
+        }
+
+        // Create one allocation for both validation and consumption.
         int[][] allocation = ingredientChecker.createAllocation(
                 player,
                 recipe
         );
 
-        if (allocation == null) {
+        if (allocation == null
+                || allocation.length != requirements.size()) {
             return false;
         }
 
         ItemStack[] contents =
                 player.getInventory().getStorageContents();
 
-        List<IngredientRequirement> requirements =
-                recipe.getRequirements();
+        // Track the total amount removed from each inventory slot.
+        int[] totalToRemove = new int[contents.length];
 
-        // Consume only the stacks allocated to each requirement.
+        // Validate the complete allocation before changing any items.
         for (int requirementIndex = 0;
              requirementIndex < requirements.size();
              requirementIndex++) {
 
-            for (int slot = 0; slot < contents.length; slot++) {
-                int amountToRemove =
-                        allocation[requirementIndex][slot];
+            IngredientRequirement requirement =
+                    requirements.get(requirementIndex);
 
-                if (amountToRemove <= 0) {
+            if (requirement == null
+                    || allocation[requirementIndex] == null
+                    || allocation[requirementIndex].length
+                            != contents.length) {
+                return false;
+            }
+
+            int allocatedForRequirement = 0;
+
+            for (int slot = 0; slot < contents.length; slot++) {
+                int amount = allocation[requirementIndex][slot];
+
+                if (amount < 0) {
+                    return false;
+                }
+
+                if (amount == 0) {
                     continue;
                 }
 
                 ItemStack item = contents[slot];
 
-                // Defensive check in case inventory contents changed.
-                if (item == null
-                        || item.getAmount() < amountToRemove
-                        || !requirements.get(requirementIndex)
-                                .matches(item)) {
+                if (item == null || !requirement.matches(item)) {
+                    return false;
+                }
+
+                allocatedForRequirement += amount;
+                totalToRemove[slot] += amount;
+
+                // The combined allocation must never exceed the stack.
+                if (totalToRemove[slot] > item.getAmount()) {
                     return false;
                 }
             }
+
+            // Ensure the allocation fulfils the entire requirement.
+            if (allocatedForRequirement != requirement.getAmount()) {
+                return false;
+            }
         }
 
-        // All allocated stacks are validated before any are changed.
-        for (int requirementIndex = 0;
-             requirementIndex < requirements.size();
-             requirementIndex++) {
+        // All requirements passed validation. Consume each slot once.
+        for (int slot = 0; slot < contents.length; slot++) {
+            int amountToRemove = totalToRemove[slot];
 
-            for (int slot = 0; slot < contents.length; slot++) {
-                int amountToRemove =
-                        allocation[requirementIndex][slot];
+            if (amountToRemove <= 0) {
+                continue;
+            }
 
-                if (amountToRemove <= 0) {
-                    continue;
-                }
+            ItemStack item = contents[slot];
 
-                ItemStack item = contents[slot];
-                int remaining = item.getAmount() - amountToRemove;
+            if (item == null) {
+                // Defensive safeguard; nothing has been committed yet
+                // to the player's inventory.
+                return false;
+            }
 
-                if (remaining <= 0) {
-                    contents[slot] = null;
-                } else {
-                    item.setAmount(remaining);
-                }
+            int remaining = item.getAmount() - amountToRemove;
+
+            if (remaining <= 0) {
+                contents[slot] = null;
+            } else {
+                item.setAmount(remaining);
             }
         }
 

@@ -1,6 +1,7 @@
 
 package com.starborne.rituals;
 
+import com.starborne.Starborne;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +16,16 @@ public final class FirstWaveRecipes {
     private FirstWaveRecipes() {
     }
 
-    public static void registerAll(LegendaryRecipeManager manager) {
+    public static void registerAll(
+            Starborne plugin,
+            LegendaryRecipeManager manager
+    ) {
+        if (plugin == null) {
+            throw new IllegalArgumentException(
+                    "Starborne plugin cannot be null."
+            );
+        }
+
         if (manager == null) {
             throw new IllegalArgumentException(
                     "Recipe manager cannot be null."
@@ -25,7 +35,8 @@ public final class FirstWaveRecipes {
         register(manager, "resistance_chestplate",
                 "Resistance Chestplate", Material.NETHERITE_CHESTPLATE,
                 potion(Material.SPLASH_POTION, 4,
-                        "Splash Turtle Master Potion", PotionType.TURTLE_MASTER),
+                        "Splash Turtle Master Potion",
+                        PotionType.TURTLE_MASTER),
                 req(Material.ENCHANTED_GOLDEN_APPLE, 8,
                         "Enchanted Golden Apple"),
                 req(Material.TURTLE_HELMET, 8, "Turtle Helmet"),
@@ -60,9 +71,11 @@ public final class FirstWaveRecipes {
                 "Cactus Leggings", Material.NETHERITE_LEGGINGS,
                 req(Material.CACTUS, 192, "Cactus"),
                 req(Material.TNT, 16, "TNT"),
-                req(Material.NETHERITE_LEGGINGS, 1, "Netherite Leggings"),
+                req(Material.NETHERITE_LEGGINGS, 1,
+                        "Netherite Leggings"),
                 enchantedBook(Material.ENCHANTED_BOOK, 8,
-                        "Thorns III Enchanted Book", Enchantment.THORNS, 3),
+                        "Thorns III Enchanted Book",
+                        Enchantment.THORNS, 3),
                 req(Material.GREEN_DYE, 64, "Green Dye"));
 
         register(manager, "breezy_boots",
@@ -114,7 +127,8 @@ public final class FirstWaveRecipes {
                 "Ice Talisman", Material.PACKED_ICE,
                 req(Material.PACKED_ICE, 256, "Packed Ice"),
                 req(Material.BLUE_ICE, 256, "Blue Ice"),
-                req(Material.POWDER_SNOW_BUCKET, 8, "Powder Snow Bucket"),
+                req(Material.POWDER_SNOW_BUCKET, 8,
+                        "Powder Snow Bucket"),
                 req(Material.NETHERITE_INGOT, 1, "Netherite Ingot"),
                 req(Material.GOLD_BLOCK, 8, "Gold Block"));
 
@@ -124,9 +138,11 @@ public final class FirstWaveRecipes {
 
         register(manager, "fruitful_spear",
                 "Fruitful Spear", Material.TRIDENT,
-                potion(Material.POTION, 12, "Regeneration II Potion",
+                potion(Material.POTION, 12,
+                        "Regeneration II Potion",
                         PotionType.STRONG_REGENERATION),
-                potion(Material.POTION, 12, "Instant Health II Potion",
+                potion(Material.POTION, 12,
+                        "Instant Health II Potion",
                         PotionType.STRONG_HEALING),
                 req(Material.GOLDEN_APPLE, 192, "Golden Apple"),
                 req(Material.ENCHANTED_GOLDEN_APPLE, 8,
@@ -144,7 +160,8 @@ public final class FirstWaveRecipes {
 
         register(manager, "regeneration_bucket",
                 "Regeneration Bucket", Material.WATER_BUCKET,
-                potion(Material.POTION, 18, "Regeneration II Potion",
+                potion(Material.POTION, 18,
+                        "Regeneration II Potion",
                         PotionType.STRONG_REGENERATION),
                 req(Material.IRON_BLOCK, 16, "Iron Block"),
                 req(Material.WATER_BUCKET, 4, "Water Bucket"),
@@ -153,12 +170,15 @@ public final class FirstWaveRecipes {
         register(manager, "poison_sword",
                 "Poison Sword", Material.NETHERITE_SWORD,
                 potion(Material.SPLASH_POTION, 6,
-                        "Poison II Splash Potion", PotionType.STRONG_POISON),
+                        "Poison II Splash Potion",
+                        PotionType.STRONG_POISON),
                 potion(Material.SPLASH_POTION, 6,
-                        "Poison Splash Potion", PotionType.POISON),
+                        "Poison Splash Potion",
+                        PotionType.POISON),
                 req(Material.NETHERITE_SWORD, 1, "Netherite Sword"),
                 potion(Material.POTION, 12,
-                        "Instant Damage II Potion", PotionType.STRONG_HARMING));
+                        "Instant Damage II Potion",
+                        PotionType.STRONG_HARMING));
     }
 
     private static void registerHealthPiece(
@@ -192,8 +212,12 @@ public final class FirstWaveRecipes {
             String description,
             PotionType type
     ) {
-        return matching(material, amount, description,
-                IngredientMatchers.potion(type));
+        return matching(
+                material,
+                amount,
+                description,
+                IngredientMatchers.potion(type)
+        );
     }
 
     private static IngredientRequirement enchantedBook(
@@ -203,8 +227,12 @@ public final class FirstWaveRecipes {
             Enchantment enchantment,
             int level
     ) {
-        return matching(material, amount, description,
-                IngredientMatchers.enchantedBook(enchantment, level));
+        return matching(
+                material,
+                amount,
+                description,
+                IngredientMatchers.enchantedBook(enchantment, level)
+        );
     }
 
     private static IngredientRequirement matching(

@@ -6,16 +6,18 @@ import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import com.starborne.souls.SoulStarItem;
+import com.starborne.souls.PvPTier;
+import com.starborne.Starborne;
 public final class FirstWaveRecipes {
 
     private FirstWaveRecipes() {
     }
 
-    public static void registerAll(LegendaryRecipeManager manager) {
-        if (manager == null) {
-            throw new IllegalArgumentException(
-                    "Recipe manager cannot be null."
+public static void registerAll(
+        Starborne plugin,
+        LegendaryRecipeManager manager
+) {
             );
         }
 

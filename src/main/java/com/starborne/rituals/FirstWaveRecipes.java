@@ -1,30 +1,30 @@
 
 package com.starborne.rituals;
 
+import com.starborne.Starborne;
+import com.starborne.souls.PvPTier;
 import com.starborne.souls.SoulStarItem;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.starborne.souls.SoulStarItem;
-import com.starborne.souls.PvPTier;
-import com.starborne.Starborne;
+
 public final class FirstWaveRecipes {
 
     private FirstWaveRecipes() {
     }
 
-public static void registerAll(
-        Starborne plugin,
-        LegendaryRecipeManager manager
-) {
+    public static void registerAll(
+            Starborne plugin,
+            LegendaryRecipeManager manager
+    ) {
+        if (plugin == null || manager == null) {
+            throw new IllegalArgumentException(
+                    "Plugin and recipe manager cannot be null."
             );
         }
 
-        SoulStarItem soulStarItem = new SoulStarItem(
-                org.bukkit.Bukkit.getPluginManager()
-                        .getPlugin("Starborne")
-        );
+        SoulStarItem soulStarItem = new SoulStarItem(plugin);
 
         register(manager, "resistance_chestplate",
                 "Resistance Chestplate", Material.NETHERITE_CHESTPLATE,
@@ -38,8 +38,7 @@ public static void registerAll(
                         1,
                         "S-Tier Soul Star",
                         item -> soulStarItem.isSoulStar(item)
-                                && soulStarItem.getTier(item)
-                                == com.starborne.souls.PvPTier.S
+                                && soulStarItem.getTier(item) == PvPTier.S
                 ));
 
         registerHealthPiece(manager, "health_chestplate",

@@ -1,6 +1,7 @@
 
 package com.starborne.rituals;
 
+import com.starborne.souls.SoulStarItem;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -18,6 +19,11 @@ public final class FirstWaveRecipes {
             );
         }
 
+        SoulStarItem soulStarItem = new SoulStarItem(
+                org.bukkit.Bukkit.getPluginManager()
+                        .getPlugin("Starborne")
+        );
+
         register(manager, "resistance_chestplate",
                 "Resistance Chestplate", Material.NETHERITE_CHESTPLATE,
                 req(Material.SPLASH_POTION, 4, "Splash Turtle Master Potion"),
@@ -25,7 +31,14 @@ public final class FirstWaveRecipes {
                 req(Material.TURTLE_HELMET, 8, "Turtle Helmet"),
                 req(Material.GOLDEN_APPLE, 128, "Golden Apple"),
                 req(Material.NETHERITE_CHESTPLATE, 1, "Netherite Chestplate"),
-                req(Material.NETHER_STAR, 1, "Soul Star"));
+                new IngredientRequirement(
+                        Material.NETHER_STAR,
+                        1,
+                        "S-Tier Soul Star",
+                        item -> soulStarItem.isSoulStar(item)
+                                && soulStarItem.getTier(item)
+                                == com.starborne.souls.PvPTier.S
+                ));
 
         registerHealthPiece(manager, "health_chestplate",
                 "Health Chestplate", Material.NETHERITE_CHESTPLATE);

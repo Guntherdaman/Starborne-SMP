@@ -242,36 +242,6 @@ private void openMaterials(Player player, LegendaryRecipe recipe) {
 }
 
 
-        boolean hasAll = ingredientChecker.hasIngredients(player, recipe);
-
-        inventory.setItem(
-                49,
-                createActionItem(
-                        Material.ARROW,
-                        ChatColor.YELLOW + "Back to Recipes",
-                        "back"
-                )
-        );
-
-        inventory.setItem(
-                53,
-                createActionItem(
-                        hasAll ? Material.LIME_CONCRETE : Material.RED_CONCRETE,
-                        hasAll
-                                ? ChatColor.GREEN + "Review & Confirm"
-                                : ChatColor.RED + "Missing Materials",
-                        "confirm:" + recipe.getId(),
-                        hasAll
-                                ? ChatColor.GRAY
-                                    + "Continue to ritual confirmation."
-                                : ChatColor.GRAY
-                                    + "Gather the missing ingredients first."
-                )
-        );
-
-        player.openInventory(inventory);
-    }
-
     @EventHandler
     public void onMenuClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) {

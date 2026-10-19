@@ -13,6 +13,7 @@ import com.starborne.commands.SoulsCommand;
 import com.starborne.commands.PvPTierCommand;
 import com.starborne.commands.SoulPowerCommand;
 import com.starborne.commands.RitualCommand;
+import com.starborne.rituals.FirstWaveRecipes;
 import com.starborne.rituals.LegendaryRitualManager;
 import com.starborne.rituals.LegendaryRitualListener;
 import com.starborne.rituals.LegendaryRecipeManager;
@@ -68,8 +69,14 @@ public final class Starborne extends JavaPlugin {
         craftingTableManager = new StarborneCraftingTableManager(this);
         starborneCraftingTable.registerRecipe();
 
-        // Initialize the Legendary recipe system.
+        // Initialize and register all first-wave Legendary recipes.
         legendaryRecipeManager = new LegendaryRecipeManager();
+        FirstWaveRecipes.registerAll(legendaryRecipeManager);
+
+        getLogger().info(
+                "Registered " + legendaryRecipeManager.getRecipeCount()
+                        + " first-wave Legendary recipes."
+        );
 
         // Initialize the ritual confirmation menu.
         confirmationMenu = new LegendaryRitualConfirmationMenu(

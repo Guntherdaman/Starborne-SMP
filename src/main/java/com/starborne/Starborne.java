@@ -14,6 +14,7 @@ import com.starborne.commands.PvPTierCommand;
 import com.starborne.commands.SoulPowerCommand;
 import com.starborne.commands.RitualCommand;
 import com.starborne.rituals.FirstWaveRecipes;
+import com.starborne.rituals.LegendaryDurabilityListener;
 import com.starborne.rituals.LegendaryRitualManager;
 import com.starborne.rituals.LegendaryRitualListener;
 import com.starborne.rituals.LegendaryRecipeManager;
@@ -76,6 +77,12 @@ public final class Starborne extends JavaPlugin {
         getLogger().info(
                 "Registered " + legendaryRecipeManager.getRecipeCount()
                         + " first-wave Legendary recipes."
+        );
+
+        // Register custom Legendary durability handling.
+        getServer().getPluginManager().registerEvents(
+                new LegendaryDurabilityListener(this),
+                this
         );
 
         // Initialize the ritual confirmation menu.

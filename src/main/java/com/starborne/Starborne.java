@@ -71,7 +71,7 @@ public final class Starborne extends JavaPlugin {
 
         // Initialize and register all first-wave Legendary recipes.
         legendaryRecipeManager = new LegendaryRecipeManager();
-        FirstWaveRecipes.registerAll(legendaryRecipeManager);
+        FirstWaveRecipes.registerAll(this, legendaryRecipeManager);
 
         getLogger().info(
                 "Registered " + legendaryRecipeManager.getRecipeCount()

@@ -4,6 +4,7 @@ package com.starborne.rituals;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class LegendaryRecipeManager {
@@ -12,15 +13,15 @@ public class LegendaryRecipeManager {
             new LinkedHashMap<>();
 
     public boolean registerRecipe(LegendaryRecipe recipe) {
-        if (recipe == null) {
+        if (recipe == null || recipe.getId() == null) {
             return false;
         }
 
-        String id = recipe.getId().toLowerCase(
-                java.util.Locale.ROOT
-        );
+        String id = recipe.getId()
+                .trim()
+                .toLowerCase(Locale.ROOT);
 
-        if (recipes.containsKey(id)) {
+        if (id.isEmpty() || recipes.containsKey(id)) {
             return false;
         }
 
@@ -29,12 +30,12 @@ public class LegendaryRecipeManager {
     }
 
     public LegendaryRecipe getRecipe(String id) {
-        if (id == null) {
+        if (id == null || id.isBlank()) {
             return null;
         }
 
         return recipes.get(
-                id.toLowerCase(java.util.Locale.ROOT)
+                id.trim().toLowerCase(Locale.ROOT)
         );
     }
 
